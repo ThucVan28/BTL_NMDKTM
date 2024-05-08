@@ -47,7 +47,7 @@ int cout=0;
 //setup he so K ngo vao
 float Ke =1/50.000;
 float Kedot = 1/90.000;
-float Ku = 70; // độ
+float Ku = 60; // độ
 
 
 float s_pre;
