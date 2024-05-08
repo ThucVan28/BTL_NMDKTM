@@ -12,6 +12,7 @@ LiquidCrystal_I2C lcd(0x27, 16,2);
 // put function declarations here:
 #define LED PC13
 #define pinservo PA0
+
 #define TRIG_PIN PB12 //DO KHOANG CACH HIEN TAI
 #define ECHO_PIN PB13//
 
@@ -28,9 +29,11 @@ float ce[5] = {-0.75, -0.25, 0, 0.25, 0.75}; // giá trị ở trục hoành c�
 float cedot[5] = {-0.75, -0.42, 0, 0.42, 0.75}; // giá trị trục hoành của ngôn ngữ tốc độ sai số edot
 
 float y_out[7] = {-1, -0.8, -0.4, 0, 0.4, 0.8, 1}; //giá trị trục hoành của ngõ ra ngôn ngữ góc lệch (servo)
-float y_tam[5][5];
-float y_sao;
-//float y_kalman;
+
+float y_tam[5][5];// biến y tạm để lưu ngôn ngữ ngõ ra ứng với ngôn ngữ e edot theo bảng quy tắc
+
+float y_sao; // giá trị ngõ ra 
+
 float beta[5][5];
 int cout=0;
 // int cout1=0;
@@ -53,7 +56,7 @@ float s_past=0;
 //float setpoint = 30;
 float error;
 float errordot;
-float time_sample= 0.05; // thời gian lấy mẫu (giây)
+float time_sample = 0.05; // thời gian lấy mẫu (giây)
 float goclech;
 float goclech_temp;
 unsigned long t1;
@@ -61,7 +64,6 @@ unsigned long t1;
 float hth_hinhthang(float L, float C1, float C2, float R);
 
 void center();
-void timerover();
 
 float GetDistance2()
 {
@@ -101,14 +103,12 @@ float GetDistance()
 }
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   lcd.init();                    
   lcd.backlight();
   lcd.setCursor(2,0);
-  // lcd.print("Arduinokit.vn");
-  // lcd.setCursor(0,1);
-  // lcd.print("Xin chao cac ban");
+
 
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
@@ -120,10 +120,6 @@ void setup() {
   Myservo.attach(pinservo);
   Myservo.write(90);
 
-  // timer.pause();
-  // timer.setOverflow(10000, MICROSEC_FORMAT); //ngắt 10ms
-  // timer.attachInterrupt(timerover);
-  // timer.resume();
 }
 
 void loop() {
@@ -161,6 +157,7 @@ void loop() {
   
 
   // chặn trên và dưới cho góc quay servo
+  // do trong mô hình góc quay servo ngược so với góc quay của thanh nên cần đảo lại
   if(goclech > 0)
   {
     goclech = -goclech_temp +85;
@@ -200,16 +197,6 @@ void loop() {
   lcd.print(s_setpoint);
     
   
-  //lcd.clear();
-
-  // Serial.print("        ");
-  // Serial.print(s_pre );
-  // Serial.print("        ");
-  // Serial.println(s_setpoint);
-  // Serial.print("        ");
-  // Serial.println(setpoint);
-  
-
   Myservo.write(goclech); // xuất vị trí cho servo
   delay(3);
   //cout1++;
@@ -287,11 +274,12 @@ void center()
   edot[4] = hlt_hinhthang(errordot, cedot[3], cedot[4] , 2 , 3);      //PB
 
   //output tinh toan ngo ra dua vao sai so  va toc do sai so
-  for (int i=0; i<5; i++)  // i hàng
+  for (int i=0; i<5; i++)  // i hàng  ,  hàng là edot
   {
-    for (int j=0;j<5; j++) // j cột
+    for (int j=0;j<5; j++) // j cột , cột là e
     {
-      //tinh beta
+      //tinh beta  
+      // Max Min
         // if(e[i]<edot[j])
         // {
         //   beta[i][j] = e[i];
@@ -300,9 +288,11 @@ void center()
         // {
         //   beta[i][j] = edot[j];
         // }
+
+        //Max - Prod
         beta[i][j] = e[i]*edot[j];
 
-        //tinh y_tam
+        //tinh ngõ ra ngôn ngữ ngõ ra theo bảng quy tắc
         if(((i==0)&&(j==0))||((i==0)&&(j==1))||((i==1)&&(j==0)))
         {
           y_tam[i][j] = y_out[6]; //vi tri PB
@@ -333,9 +323,10 @@ void center()
         }
     }
   }
+
+    //tính giá trị ngõ ra bằng trung bình có trọng số  
   float tuso = 0.0;
   float mauso = 0.0;
-
   for (int i =0; i<5; i++)
   {
     for(int j=0; j<5; j++)
