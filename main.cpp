@@ -160,11 +160,11 @@ void loop() {
   // do trong mô hình góc quay servo ngược so với góc quay của thanh nên cần đảo lại
   if(goclech > 0)
   {
-    goclech = -goclech_temp +85;
+    goclech = goclech_temp + 85;
   }
   else 
   {
-    goclech= 85 + goclech_temp ;
+    goclech= 85 - goclech_temp ;
   }
 
   if(goclech >120)
@@ -295,15 +295,15 @@ void center()
         //tinh ngõ ra ngôn ngữ ngõ ra theo bảng quy tắc
         if(((i==0)&&(j==0))||((i==0)&&(j==1))||((i==1)&&(j==0)))
         {
-          y_tam[i][j] = y_out[6]; //vi tri PB
+          y_tam[i][j] = y_out[0]; //vi tri NB
         }
         else if(((i==2)&&(j==0))||((i==1)&&(j==1))||((i==0)&&(j==2)))
         {
-          y_tam[i][j] = y_out[5]; // vi tri PM
+          y_tam[i][j] = y_out[1]; // vi tri NM
         }
         else if(((i==3)&&(j==0))||((i==2)&&(j==1))||((i==1)&&(j==2))||((i==0)&&(j==3)))
         {
-          y_tam[i][j] = y_out[4]; // vi tri PS
+          y_tam[i][j] = y_out[2]; // vi tri NS
         }
         else if(((i==4)&&(j==0))||((i==3)&&(j==1))||((i==2)&&(j==2))||((i==1)&&(j==3))||((i==0)&&(j==4)))
         {
@@ -311,15 +311,15 @@ void center()
         }
         else if(((i==4)&&(j==1))||((i==3)&&(j==2))||((i==2)&&(j==3))||((i==1)&&(j==4)))
         {
-          y_tam[i][j] = y_out[2]; // vi tri NS
+          y_tam[i][j] = y_out[4]; // vi tri PS
         }
         else if(((i==4)&&(j==2))||((i==3)&&(j==3))||((i==2)&&(j==4)))
         {
-          y_tam[i][j] = y_out[1]; // vi tri NM
+          y_tam[i][j] = y_out[5]; // vi tri PM
         }
         else
         {
-          y_tam[i][j] = y_out[0]; // vi tri NB
+          y_tam[i][j] = y_out[6]; // vi tri PB
         }
     }
   }
